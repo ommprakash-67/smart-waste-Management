@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Waste Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; background-color: #f0f8ff; }
+        .card { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="mb-4">🚮 Smart Waste Bin Alerts</h2>
+        <button class="btn btn-primary mb-3" onclick="simulateBin()">Simulate Bin Data</button>
+        <div id="bin-alerts" class="row"></div>
+    </div>
+
+    <script>
+        async function fetchBinAlerts() {
+            const res = await fetch('/api/alerts');
+            const data = await res.json();
+            const container = document.getElementById('bin-alerts');
+            container.innerHTML = '';
+
+            data.alert_bins.forEach(bin => {
+                const card = `
+                    <div class="col-md-4">
+                        <div class="card border-danger">
+                            <div class="card-body">
+                                <h5 class="card-title">🗑 Bin ID: ${bin.bin_id}</h5>
+                                <p class="card-text"><strong>Location:</strong> ${bin.location}</p>
+                                <p class="card-text"><strong>Fill Level:</strong> ${bin.fill_level}%</p>
+                                <p class="card-text"><small class="text-muted">⏱ ${bin.timestamp}</small></p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        }
+
+        async function simulateBin() {
+            await fetch('/simulate');
+            fetchBinAlerts(); // Refresh list after simulating
+        }
+
+        // Auto-refresh every 10 seconds
+        setInterval(fetchBinAlerts, 10000);
+        fetchBinAlerts();
+    </script>
+
+</body>
+</html>
